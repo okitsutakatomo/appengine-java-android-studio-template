@@ -1,0 +1,61 @@
+buildscript {
+    repositories { jcenter() }
+    dependencies {
+        classpath "com.google.appengine:gradle-appengine-plugin:1.9.30"
+    }
+}
+
+repositories {
+    jcenter();
+}
+
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'appengine'
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
+project.ext {
+    appengine_sdk_version = "1.9.30"
+}
+
+dependencies {
+    appengineSdk "com.google.appengine:appengine-java-sdk:${project.appengine_sdk_version}"
+    compile 'javax.servlet:servlet-api:2.5'
+
+    //  Google App Engine API
+    compile "com.google.appengine:appengine-api-1.0-sdk:${project.appengine_sdk_version}"
+    compile "com.google.appengine:appengine-api-labs:${project.appengine_sdk_version}"
+    testCompile "com.google.appengine:appengine-api-stubs:${project.appengine_sdk_version}"
+    testCompile "com.google.appengine:appengine-testing:${project.appengine_sdk_version}"
+
+    // objectify
+    compile 'com.google.guava:guava:18.0'
+    compile 'com.googlecode.objectify:objectify:5.1.5'
+
+    // Memcache
+    compile 'net.sf.jsr107cache:jsr107cache:1.1'
+    compile "com.google.appengine:appengine-jsr107cache:${project.appengine_sdk_version}"
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-all:1.10.19'
+}
+
+appengine {
+    downloadSdk = true
+    appcfg {
+        oauth2 = true
+    }
+}
+
+task layout << {
+    sourceSets*.allSource.srcDirs*.each { it.mkdirs() }   // *. は Spread Operator という groovy の演算子
+    new File(sourceSets.main.resources.srcDirs[0], 'META-INF').mkdirs()
+    new File(webAppDir, 'WEB-INF').mkdirs()
+}
+
+//war {
+//    expand([ "app.id" : "java-test-1227" ])
+//    expand([ "app.version" : "1" ])
+//}
